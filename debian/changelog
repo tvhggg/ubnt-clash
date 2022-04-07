@@ -1,3 +1,9 @@
+ubnt-clash (0.1.1) sid; urgency=medium
+
+  * Fix p.rst.im proxy error.
+
+ -- sskaje <sskaje@gmail.com>  Wed, 07 Apr 2022 04:00:00 +0000
+
 ubnt-clash (0.1.0) sid; urgency=medium
 
   * First release.
