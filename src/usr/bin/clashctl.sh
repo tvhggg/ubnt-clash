@@ -11,7 +11,7 @@
 # 
 
 RELEASE_URL=https://api.github.com/repos/Dreamacro/clash/releases/tags/premium 
-GEOIP_DB_URL=https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb
+GEOIP_DB_RELEASE_URL=https://api.github.com/repos/Dreamacro/maxmind-geoip/releases/latest
 
 CLASH_BINARY=/usr/sbin/clashd
 CLASH_RUN_ROOT=/var/run/clash
@@ -161,6 +161,8 @@ function download_geoip_db()
   
   echo "Downloading DB..."
   
+  GEOIP_DB_URL=$(curl -q -s $GEOIP_DB_RELEASE_URL | jq -r '.assets[0].browser_download_url')
+
   if [ "$USE_PROXY" == "1" ]; then
     echo "Download will be proxied via p.rst.im"
     GEOIP_DB_URL=$(echo $GEOIP_DB_URL | sed -e 's#github.com#p.rst.im/q/github.com#')
@@ -193,6 +195,13 @@ function copy_geoip_db()
   fi
 }
 
+function check_copy_geoip_db()
+{
+  if [ ! -f $CLASH_RUN_ROOT/$DEV/Country.mmdb ]; then
+    copy_geoip_db
+  fi
+}
+
 function generate_config()
 {
   if [ ! -f $CLASH_RUN_ROOT/$DEV/clash.yaml ]; then
@@ -220,7 +229,7 @@ function start()
     fi
   fi
 
-  copy_geoip_db
+  check_copy_geoip_db
   
   generate_config 
 
