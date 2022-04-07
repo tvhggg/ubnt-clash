@@ -1,0 +1,5 @@
+help: Check clash binary version
+
+run: /usr/bin/clashctl.sh check_update
+
+

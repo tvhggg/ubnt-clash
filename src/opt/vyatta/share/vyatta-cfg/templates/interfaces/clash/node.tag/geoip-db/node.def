@@ -1,0 +1,4 @@
+type: txt
+help: File containing the Clash geoip-db file, download using clashctl.sh download_db
+syntax:expression: exec "/opt/vyatta/sbin/check_file_in_config_dir '$VAR(@)'"
+val_help: Clash geodb file in /config

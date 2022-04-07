@@ -1,0 +1,6 @@
+help: Restart clash
+
+
+run:
+	echo "Restarting Clash"
+	sudo /usr/bin/clashctl.sh restart 

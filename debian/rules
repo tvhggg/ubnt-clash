@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+clean: 
+	rm -rf debian/ubnt-clash
+
+
+build: 
+	@# Do nothing
+
+
+binary: 
+	cp -R src debian/ubnt-clash
+	dh_gencontrol
+	dh_builddeb
+

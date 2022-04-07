@@ -1,0 +1,44 @@
+tag:
+priority: 460
+type: txt
+help: Clash TUN Mode tunnel interface name, only utun accepted
+val_help: <utun>; Clash tunnel interface name 
+syntax:expression: pattern $VAR(@) "^utun$"
+        ; "Clash tunnel interface must be named \"utun\""
+
+
+create:
+	ifname=clash$VAR(@)
+	logfile=/var/log/vyatta/clash_${ifname}.log
+	sudo touch $logfile
+	sudo chgrp adm $logfile
+	sudo chmod 664 $logfile
+	echo "`date`: Clash interface $ifname created" >> $logfile
+
+	sudo rm -rf /var/run/clash/$VAR(@)
+	sudo mkdir -p /var/run/clash/$VAR(@) 
+
+
+delete:
+        ifname=clash$VAR(@)                                                                                                                                                                                                                   
+        logfile=/var/log/vyatta/clash_${ifname}.log    
+	echo "`date`: Clash interface $ifname deleted" >> $logfile
+	sudo /usr/bin/clashctl.sh delete $VAR(@)
+
+
+end:	
+	ifname=clash$VAR(@)
+	logfile=/var/log/vyatta/clash_${ifname}.log
+	echo "`date`: Stopping Clash daemon for $ifname" >> $logfile
+
+
+     if [ -n "$VAR(./disable)" ]; then
+         exit 0
+     fi
+
+	if [ -e /var/run/clash/$VAR(@) ] && [ -x /usr/sbin/clash ] ; then
+		echo "`date`: Starting Clash daemon for $ifname" >> $logfile
+		# delay start
+		sudo /usr/bin/clashctl.sh delaystart $VAR(@) &
+	fi
+

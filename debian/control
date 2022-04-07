@@ -1,0 +1,12 @@
+Source: ubnt-clash
+Section: net
+Priority: optional
+Maintainer: sskaje <sskaje@gmail.com>
+Homepage: https://sskaje.me/
+Build-Depends: debhelper (>= 9)
+
+
+Package: ubnt-clash
+Architecture: all
+Depends: jq, curl
+Description: Clash config for Ubnt EdgeRouters
