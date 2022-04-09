@@ -17,11 +17,12 @@ save
 
 ### PBR 
 
-Tested on ER-X
+Router local IP 192.168.2.1, LAN interface eth1
+
 
 ```
 set protocols static table 10 interface-route 0.0.0.0/0 next-hop-interface utun
-set firewall group address-group SRC_CLASH address 192.168.8.10-192.168.8.250
+set firewall group address-group SRC_CLASH address 192.168.2.10-192.168.2.250
 set firewall modify MCLASH rule 101 action modify
 set firewall modify MCLASH rule 101 modify table 10
 set firewall modify MCLASH rule 101 source group address-group SRC_CLASH
@@ -29,24 +30,52 @@ set interfaces ethernet eth1 firewall in modify MCLASH
 
 ```
 
+### DNS Hijack
+Router local IP 192.168.2.1, LAN interface eth1
+
+
+```
+set service nat rule 4050 destination group address-group ADDRv4_eth1
+set service nat rule 4050 destination port 53
+set service nat rule 4050 inbound-interface eth1
+set service nat rule 4050 inside-address address 192.168.2.1
+set service nat rule 4050 inside-address port 7874
+set service nat rule 4050 protocol udp
+set service nat rule 4050 source group address-group SRC_CLASH
+set service nat rule 4050 type destination
+
+```
+
+
+
 ## Commands 
 
-### Install Clash Premium Binary
+### Install 
+
+Install Clash Premium Binary, YQ, GeoIP Database.
 
 Proxy provided by p.rst.im
 
 ```
-clashctl.sh update
+clashctl.sh install
 
 # proxied download
-USE_PROXY=1 clashctl.sh update
+USE_PROXY=1 clashctl.sh install
 ```
 
-### Download GeoIP Database
+### Update  
 
-Proxy provided by p.rst.im
+#### Update Clash Binary
 
-It's recommended to download manually instead of letting clash download it.
+```
+clashctl.sh install
+
+# proxied download
+USE_PROXY=1 clashctl.sh install
+```
+
+#### Update GeoIP Database
+
 
 ```
 clashctl.sh download_db
@@ -91,5 +120,15 @@ set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
 set system task-scheduler task update-clash-config executable path "/config/scripts/clash-cron"
 
 ```
+
+## Test 
+
+### Clash utun
+
+```
+curl https://rst.im/ip --interface utun -v
+```
+
+
 
 

@@ -1,0 +1,10 @@
+
+tproxy-port: 7895
+mixed-port: 7893
+bind-address: "*"
+#external-ui: "/var/run/clash/utun/dashboard"
+ipv6: false
+
+profile:
+  store-selected: true
+  store-fake-ip: true
