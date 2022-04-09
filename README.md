@@ -54,6 +54,23 @@ set service nat rule 4050 type destination
 
 ```
 
+## Config Files
+
+Files are stored under **/config/clash**
+
+* templates: template config files
+* utun: config files for utun
+
+YAML files under *templates* will be copied to *utun* unless there is a same file under *utun*.
+
+YAML files with '.yaml' extension under *utun* will be merge into */run/clash/utun/config.yaml* as clash main config file.
+
+YAML files with '.yaml.overwrite' extension under *utun* will be used to overwrite settings in */run/clash/utun/config.yaml*.
+
+GeoIP database file willl be downloaded to */config/clash* and symlink to */run/clash/utun/*.
+
+Dashboard files will be downloaded to */config/clash/dashboard*
+
 
 
 ## Commands 

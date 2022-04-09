@@ -2,7 +2,7 @@
 tproxy-port: 7895
 mixed-port: 7893
 bind-address: "*"
-#external-ui: "/var/run/clash/utun/dashboard"
+external-ui: "/config/clash/dashboard"
 ipv6: false
 
 profile:

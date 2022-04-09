@@ -15,7 +15,8 @@ CLASH_RUN_ROOT=/run/clash
 CLASH_SUFFIX=
 YQ_BINARY=/usr/bin/yq
 YQ_SUFFIX=
-UI_PATH=/run/clash/utun/dashboard
+UI_PATH=/config/clash/dashboard
+CLASH_DASHBOARD_URL=https://github.com/Dreamacro/clash-dashboard/archive/refs/heads/gh-pages.tar.gz
 
 CLASH_CONFIG_ROOT=/config/clash
 
@@ -85,7 +86,6 @@ USAGE
 
 function http_download()
 {
-  echo "http_download" 1>&2
   ASSET_URL=$1
 
   if [ "$USE_PROXY" == "1" ]; then
@@ -233,15 +233,16 @@ function yq_version()
   $YQ_BINARY -V
 }
 
-# TODO: no dist files
 function install_ui()
 {
   echo "Downloading UI..." 1>&2
-  TMPFILE=$(github_download Dreamacro/clash-dashboard latest)
+  TMPFILE=$(http_download $CLASH_DASHBOARD_URL)
   
   if [ $? -eq 0 ]; then 
     # extract
-    sudo mv "$TMPFILE" $UI_PATH 
+    echo "Installing UI to $UI_PATH" 1>&2
+    mkdir -p $UI_PATH
+    tar --strip-components=1 -xv -C $UI_PATH -f "$TMPFILE" 
   fi
   rm -f "$TMPFILE"
 }
@@ -275,6 +276,10 @@ function generate_config()
   generate_utun_config
 
   cat $CLASH_CONFIG_ROOT/$DEV/*.yaml >  $CLASH_RUN_ROOT/$DEV/config.yaml
+
+  for i in $(ls $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite); do
+     yq -i eval-all '. as $item ireduce ({}; . * $item )'  $CLASH_RUN_ROOT/$DEV/config.yaml $i
+  done
 }
 
 function show_config()
@@ -383,6 +388,7 @@ case $1 in
     install_yq
     download_geoip_db
     install_clash
+    install_ui
     ;;
 
   update_db)

@@ -1,3 +1,9 @@
+ubnt-clash (0.2.2) sid; urgency=medium
+
+  * Add Clash Dashboard
+
+ -- sskaje <sskaje@gmail.com>  Wed, 09 Apr 2022 12:31:00 +0000
+
 ubnt-clash (0.2.1) sid; urgency=medium
 
   * Fix auto-start. 
