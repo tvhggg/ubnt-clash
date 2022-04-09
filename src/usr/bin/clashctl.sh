@@ -11,11 +11,11 @@
 # 
 
 CLASH_BINARY=/usr/sbin/clashd
-CLASH_RUN_ROOT=/var/run/clash
+CLASH_RUN_ROOT=/run/clash
 CLASH_SUFFIX=
 YQ_BINARY=/usr/bin/yq
 YQ_SUFFIX=
-UI_PATH=/var/run/clash/utun/dashboard
+UI_PATH=/run/clash/utun/dashboard
 
 CLASH_CONFIG_ROOT=/config/clash
 

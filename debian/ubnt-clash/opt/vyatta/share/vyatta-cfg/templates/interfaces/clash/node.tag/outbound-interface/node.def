@@ -1,7 +1,0 @@
-multi:
-type: txt
-help: Outbound interface 
-
-allowed: /usr/sbin/ubnt-ifctl list-sys-intfs all
-
-commit:expression: exec "/usr/sbin/ubnt-ifctl valid-intf $VAR(@) all warn"

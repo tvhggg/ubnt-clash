@@ -1,3 +1,0 @@
-help: Update clash binary
-
-run: /usr/bin/clashctl.sh update 

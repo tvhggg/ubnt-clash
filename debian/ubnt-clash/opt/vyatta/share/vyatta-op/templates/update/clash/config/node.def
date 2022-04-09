@@ -1,4 +1,0 @@
-help: Update clash config
-
-run: /usr/bin/clashctl.sh rehash
-

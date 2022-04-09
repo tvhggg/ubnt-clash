@@ -1,0 +1,3 @@
+debian/ubnt-clash/**
+.DS*
+*.deb

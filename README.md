@@ -2,6 +2,14 @@
 
 Clash config for Ubnt EdgeRouters
 
+## Install 
+
+Download deb package from https://github.com/sskaje/ubnt-clash/releases
+
+```
+dpkg -i  ubnt-clash_x.y.z_all.deb
+```
+
 
 ## Configuration
 
@@ -128,6 +136,7 @@ set system task-scheduler task update-clash-config executable path "/config/scri
 ```
 curl https://rst.im/ip --interface utun -v
 ```
+
 
 
 

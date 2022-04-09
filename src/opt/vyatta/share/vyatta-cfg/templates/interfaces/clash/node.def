@@ -15,8 +15,8 @@ create:
 	sudo chmod 664 $logfile
 	echo "`date`: Clash interface $ifname created" >> $logfile
 
-	sudo rm -rf /var/run/clash/$VAR(@)
-	sudo mkdir -p /var/run/clash/$VAR(@) 
+	sudo rm -rf /run/clash/$VAR(@)
+	sudo mkdir -p /run/clash/$VAR(@) 
 
 
 delete:
@@ -36,7 +36,7 @@ end:
          exit 0
      fi
 
-	if [ -e /var/run/clash/$VAR(@) ] && [ -x /usr/sbin/clash ] ; then
+	if [ -e /run/clash/$VAR(@) ] && [ -x /usr/sbin/clashd ] ; then
 		echo "`date`: Starting Clash daemon for $ifname" >> $logfile
 		# delay start
 		sudo /usr/bin/clashctl.sh delaystart $VAR(@) &
