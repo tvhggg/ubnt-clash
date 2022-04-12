@@ -267,7 +267,7 @@ function generate_config()
   # /config/clash/templates => /config/clash/utun
   for i in $(ls $CLASH_CONFIG_ROOT/templates/*.yaml); do 
     f=$(basename $i)
-    if [ ! -f $CLASH_CONFIG_ROOT/$DEV/$i ]; then
+    if [ ! -f $CLASH_CONFIG_ROOT/$DEV/$f ]; then
       cp $CLASH_CONFIG_ROOT/templates/$f $CLASH_CONFIG_ROOT/$DEV/
     fi
   done
