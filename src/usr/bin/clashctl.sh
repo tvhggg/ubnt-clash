@@ -20,19 +20,30 @@ CLASH_DASHBOARD_URL=https://github.com/Dreamacro/clash-dashboard/archive/refs/he
 
 CLASH_CONFIG_ROOT=/config/clash
 
+
 # Clash premium only support 1 single tun interface named utun.
 DEV=utun
 
+CLASH_REPO=Dreamacro/clash
+CLASH_REPO_TAG=tags/premium
+
+CLASH_EXECUTABLE=$(cli-shell-api returnEffectiveValue interfaces clash $DEV executable)
+
+if [ "$CLASH_EXECUTABLE" == "meta" ]; then
+  CLASH_REPO=MetaCubeX/Clash.Meta
+  CLASH_REPO_TAG=latest
+fi 
+
 hwtype=$(uname -m)   
 if [[ "$hwtype" == "mips64" ]]; then
-    CLASH_SUFFIX="mips64-"
-    YQ_SUFFIX="mips64"
+  CLASH_SUFFIX="mips64-"
+  YQ_SUFFIX="mips64"
 elif [[ "$hwtype" == "mips" ]]; then
-    CLASH_SUFFIX="mipsle-hardfloat-"
-    YQ_SUFFIX="mipsle"
+  CLASH_SUFFIX="mipsle-hardfloat-"
+  YQ_SUFFIX="mipsle"
 else
-    echo "Unknown Arch"
-    exit -1
+  echo "Unknown Arch"
+  exit -1
 fi
 
 mkdir -p $CLASH_RUN_ROOT/$DEV $CLASH_CONFIG_ROOT/$DEV
@@ -128,16 +139,16 @@ function github_releases()
 
 function check_version()
 {
-  echo "Checking latest premium binary... " 1>&2
-
-  PACKAGE_NAME=$(github_releases Dreamacro/clash tags/premium | jq -r  '.[] | select(.name | contains("'$CLASH_SUFFIX'")) | .name')
+  echo "Checking latest binary $CLASH_REPO ($CLASH_REPO_TAG)... " 1>&2
+  
+  PACKAGE_NAME=$(github_releases $CLASH_REPO $CLASH_REPO_TAG | jq -r  '.[] | select(.name | contains("'$CLASH_SUFFIX'")) | .name')
   echo "Latest version: " $PACKAGE_NAME 1>&2
 }
 
 function install_clash()
 {
   echo "Getting asset download URL..." 1>&2
-  ASSET_URL=$(github_releases Dreamacro/clash tags/premium | jq -r  '.[] | select(.name | contains("'$CLASH_SUFFIX'")) | .browser_download_url')
+  ASSET_URL=$(github_releases $CLASH_REPO $CLASH_REPO_TAG | jq -r  '.[] | select(.name | contains("'$CLASH_SUFFIX'")) | .browser_download_url')
 
   TMPFILE=$(http_download $ASSET_URL)
   
@@ -247,16 +258,6 @@ function install_ui()
   rm -f "$TMPFILE"
 }
 
-function generate_utun_config()
-{
-  cat > $CLASH_CONFIG_ROOT/$DEV/tun.yaml <<'EOF'
-tun: 
-  enable: true
-  stack: system
-
-EOF
-
-}
 
 function generate_config()
 {
@@ -271,9 +272,6 @@ function generate_config()
       cp $CLASH_CONFIG_ROOT/templates/$f $CLASH_CONFIG_ROOT/$DEV/
     fi
   done
-
-  # overwrite 
-  generate_utun_config
 
   cat $CLASH_CONFIG_ROOT/$DEV/*.yaml >  $CLASH_RUN_ROOT/$DEV/config.yaml
 
@@ -394,6 +392,17 @@ case $1 in
   update_db)
     download_geoip_db
     ;;  
+  update_yq)
+    install_yq
+    ;;  
+  update_ui)
+    install_ui
+    ;;  
+
+  update | update_clash)
+    install_clash
+    ;;
+
 
 
   status)
@@ -411,10 +420,6 @@ case $1 in
   
   yq_version) 
     yq_version
-    ;;
-
-  update)
-    install_clash
     ;;
 
   check_config)

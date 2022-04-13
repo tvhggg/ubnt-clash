@@ -23,6 +23,13 @@ save
 
 ```
 
+ubnt-clash downloads `Dreamacro/clash` by default, you can use MetaCubeX/Clash.Meta by setting: 
+
+```
+set interface clash utun executable meta
+```
+and then `commit` `save`.
+
 ### PBR 
 
 Router local IP 192.168.2.1, LAN interface eth1

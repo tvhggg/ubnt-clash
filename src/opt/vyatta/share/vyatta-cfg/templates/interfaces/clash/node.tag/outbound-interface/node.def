@@ -1,6 +1,5 @@
-multi:
 type: txt
-help: Outbound interface 
+help: Outbound interface, not used for now
 
 allowed: /usr/sbin/ubnt-ifctl list-sys-intfs all
 

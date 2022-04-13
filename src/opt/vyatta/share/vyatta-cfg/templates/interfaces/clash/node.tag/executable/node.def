@@ -1,0 +1,4 @@
+type: txt
+help: Clash executable 
+syntax:expression: $VAR(@) in "clash", "meta";
+                   "Must be \"clash\" or \"meta\""

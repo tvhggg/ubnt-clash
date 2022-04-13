@@ -1,4 +1,3 @@
 type: txt
 help: URL containing the Clash config (e.g., https://xxxx)
-#syntax:expression: exec "/opt/vyatta/sbin/check_file_in_config_dir '$VAR(@)'"
 val_help: Clash config file from a URL

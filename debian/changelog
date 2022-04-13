@@ -1,3 +1,9 @@
+ubnt-clash (0.2.3) sid; urgency=medium
+
+  * Support Clash.Meta
+
+ -- sskaje <sskaje@gmail.com>  Wed, 13 Apr 2022 07:51:00 +0000
+
 ubnt-clash (0.2.2) sid; urgency=medium
 
   * Add Clash Dashboard
