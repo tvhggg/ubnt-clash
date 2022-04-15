@@ -36,12 +36,21 @@ Router local IP 192.168.2.1, LAN interface eth1
 
 
 ```
+# route table
 set protocols static table 10 interface-route 0.0.0.0/0 next-hop-interface utun
+
+# pbr rules
 set firewall group address-group SRC_CLASH address 192.168.2.10-192.168.2.250
 set firewall modify MCLASH rule 101 action modify
 set firewall modify MCLASH rule 101 modify table 10
 set firewall modify MCLASH rule 101 source group address-group SRC_CLASH
+
+# apply pbr rules to eth1
 set interfaces ethernet eth1 firewall in modify MCLASH
+
+# Fake IP destination only if you need
+set firewall group network-group DST_CLASH_FAKEIP network 198.18.0.0/16
+set firewall modify MCLASH rule 101 destination group network-group DST_CLASH_FAKEIP
 
 ```
 
