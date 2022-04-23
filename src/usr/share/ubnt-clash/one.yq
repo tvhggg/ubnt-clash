@@ -1,0 +1,9 @@
+. as $obj ireduce ({}; . *+ $obj ) | 
+. as $item | 
+$item.create-proxy-group |
+with_entries(
+  .key as $k | 
+  .value as $v | 
+  $item.proxy-groups[$item.proxy-groups[] | select(.name == $k)  | key].proxies = [ $item.proxies[] | select( .name | test($v) ) | .name ] 
+) | 
+$item

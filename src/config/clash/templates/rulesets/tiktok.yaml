@@ -1,0 +1,26 @@
+proxy-groups:
+  - name: "TIKTOK"
+    type: select
+    proxies: []
+
+# fill proxy-groups.[xxx].proxies with  [.proxies[] | select( .name | test("日本|韩国") ) | .name]
+create-proxy-group:
+  TIKTOK: "日本|韩国"
+
+rules:
+- DOMAIN-SUFFIX,tiktok.com,TIKTOK
+- DOMAIN-SUFFIX,tiktokv.com,TIKTOK
+- DOMAIN-SUFFIX,tiktokcdn.com,TIKTOK
+- DOMAIN-SUFFIX,tiktokcdn-us.com,TIKTOK
+- DOMAIN-SUFFIX,ibytedtos.com,TIKTOK
+- DOMAIN-SUFFIX,byteoversea.com,TIKTOK
+
+
+dns:
+  fake-ip-filter:
+  - "+.tiktok.com"
+  - "+.tiktokv.com"
+  - "+.tiktokcdn.com"
+  - "+.tiktokcdn-us.com"
+  - "+.ibytedtos.com"
+  - "+.byteoversea.com"

@@ -20,6 +20,7 @@ CLASH_DASHBOARD_URL=https://github.com/Dreamacro/clash-dashboard/archive/refs/he
 
 CLASH_CONFIG_ROOT=/config/clash
 
+CLASH_DOWNLOAD_NAME=clash.config
 
 # Clash premium only support 1 single tun interface named utun.
 DEV=utun
@@ -185,7 +186,7 @@ function download_config()
   curl -q -s -o "$TMPFILE" $CONFIG_URL
 
   # test config and install 
-  $CLASH_BINARY -d $CLASH_CONFIG_ROOT/$DEV -f $TMPFILE -t | grep 'test is successful' >/dev/null 2>&1 &&  mv "$TMPFILE" $CLASH_CONFIG_ROOT/$DEV/clash.yaml
+  $CLASH_BINARY -d $CLASH_CONFIG_ROOT/$DEV -f $TMPFILE -t | grep 'test is successful' >/dev/null 2>&1 &&  mv "$TMPFILE" $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME
 }
 
 function download_geoip_db()
@@ -258,10 +259,9 @@ function install_ui()
   rm -f "$TMPFILE"
 }
 
-
 function generate_config()
 {
-  if [ ! -f $CLASH_CONFIG_ROOT/$DEV/clash.yaml ]; then
+  if [ ! -f $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME ]; then
     download_config 
   fi 
 
@@ -273,11 +273,16 @@ function generate_config()
     fi
   done
 
-  cat $CLASH_CONFIG_ROOT/$DEV/*.yaml >  $CLASH_RUN_ROOT/$DEV/config.yaml
+  rm -f $CLASH_RUN_ROOT/$DEV/config.yaml
 
-  for i in $(ls $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite); do
-     yq -i eval-all '. as $item ireduce ({}; . * $item )'  $CLASH_RUN_ROOT/$DEV/config.yaml $i
-  done
+  # manually setting order to ensure local rules correctly inserted before downloaded rules
+  yq eval-all --from-file /usr/share/ubnt-clash/one.yq \
+    $CLASH_CONFIG_ROOT/$DEV/*.yaml \
+    $CLASH_CONFIG_ROOT/$DEV/rulesets/*.yaml \
+    $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME \
+    $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite \
+    > $CLASH_RUN_ROOT/$DEV/config.yaml
+
 }
 
 function show_config()

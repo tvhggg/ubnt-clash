@@ -1,0 +1,10 @@
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://p.rst.im/q/raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
+    path: ./reject.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,reject,REJECT

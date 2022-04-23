@@ -74,14 +74,68 @@ set service nat rule 4050 type destination
 
 Files are stored under **/config/clash**
 
-* templates: template config files
-* utun: config files for utun
+* **/config/clash/templates**: template config files
+* **/config/clash/templates/rulesets**: example config files
+* **/config/clash/utun**: config files for utun
 
-YAML files under *templates* will be copied to *utun* unless there is a same file under *utun*.
+YAML files under *templates* will be copied to *utun* unless there is a same file under *utun*, files under *templates/rulesets* will NOT be copied.
 
-YAML files with '.yaml' extension under *utun* will be merge into */run/clash/utun/config.yaml* as clash main config file.
+### YAML File Loading Order 
 
-YAML files with '.yaml.overwrite' extension under *utun* will be used to overwrite settings in */run/clash/utun/config.yaml*.
+1. Files with '.yaml' extension under *utun*
+2. Files with '.yaml' extension under *utun/rulesets*
+3. File downloaded from server 
+4. Files with '.yaml.overwrite' extension under *utun* to overwrite settings, don't try to overwrite an array.
+
+This loading order is designed because appending element to array is easier in YQ. 
+
+#### Custom Entry 
+
+Some custom config entry is used by YQ scripts.
+
+##### Create A New Proxy Group
+
+Example `templates/rulesets/tiktok.yaml`
+
+```
+proxy-groups:
+  - name: "TIKTOK"
+    type: select
+    proxies: []
+
+create-proxy-group:
+  TIKTOK: "日本|韩国"
+```
+
+A new **proxy-group** named "*TIKTOK*" will be created before all `proxy-groups` and its `proxies` is filtered like 
+
+```
+yq '[.proxies[] | select( .name | test("日本|韩国") ) | .name]' download.yaml
+```
+
+#### 3rd Party Rule Providers
+
+Examples `templates/rulesets/adblock.yaml`
+
+```
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://p.rst.im/q/raw.githubusercontent.com/Loyalsoldier/clash-rules/release/reject.txt"
+    path: ./reject.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,reject,REJECT
+
+```
+
+A new rule provider will be added to clash config and a new `rule` will be insert before downloaded rules.
+
+`p.rst.im` is recommended in `url`.
+
+### Other Files
 
 GeoIP database file willl be downloaded to */config/clash* and symlink to */run/clash/utun/*.
 
@@ -169,8 +223,4 @@ set system task-scheduler task update-clash-config executable path "/config/scri
 ```
 curl https://rst.im/ip --interface utun -v
 ```
-
-
-
-
 
