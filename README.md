@@ -197,20 +197,40 @@ USE_PROXY=1 clashctl.sh install
 #### Update Clash Binary
 
 ```
-clashctl.sh install
+clashctl.sh update
 
 # proxied download
-USE_PROXY=1 clashctl.sh install
+USE_PROXY=1 clashctl.sh update
+```
+
+#### Update Clash DashBoard UI
+
+
+```
+clashctl.sh update_ui
+
+# proxied download
+USE_PROXY=1 clashctl.sh update_ui
 ```
 
 #### Update GeoIP Database
 
 
 ```
-clashctl.sh download_db
+clashctl.sh update_db
 
 # proxied download
-USE_PROXY=1 clashctl.sh download_db
+USE_PROXY=1 clashctl.sh update_db
+```
+
+#### Update YQ
+
+
+```
+clashctl.sh update_yq
+
+# proxied download
+USE_PROXY=1 clashctl.sh update_yq
 ```
 
 ### Show Clash Binary Version 

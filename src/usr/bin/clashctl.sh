@@ -85,7 +85,9 @@ Commands:
   check_update           Check clash binary version
   check_version          Check clash binary version 
   update                 Update clash binary
+  update_ui              Download Dashboard UI
   update_db              Download GeoIP Database
+  update_yq              Download YQ binary
   cron                   Run cron
   show_version           Show clash binary version
   help                   Show this message
@@ -214,7 +216,7 @@ function copy_geoip_db()
     # DO NOT COPY
     ln -s $DB_PATH $CLASH_RUN_ROOT/$DEV/Country.mmdb
   else 
-    echo "GeoIP DB Not found, clash will download it, if it's too slow, try USE_PROXY=1 $0 download_db " 1>&2
+    echo "GeoIP DB Not found, clash will download it, if it's too slow, try USE_PROXY=1 $0 update_db " 1>&2
   fi
 }
 
