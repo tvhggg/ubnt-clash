@@ -13,7 +13,11 @@ rules:
 - DOMAIN-SUFFIX,tiktokcdn.com,TIKTOK
 - DOMAIN-SUFFIX,tiktokcdn-us.com,TIKTOK
 - DOMAIN-SUFFIX,ibytedtos.com,TIKTOK
+- DOMAIN-SUFFIX,ipstatp.com,TIKTOK
 - DOMAIN-SUFFIX,byteoversea.com,TIKTOK
+- DOMAIN-SUFFIX,tik-tokapi.com,TIKTOK
+- DOMAIN-SUFFIX,muscdn.com,TIKTOK
+- DOMAIN-SUFFIX,musical.ly,TIKTOK
 
 
 dns:
@@ -23,4 +27,8 @@ dns:
   - "+.tiktokcdn.com"
   - "+.tiktokcdn-us.com"
   - "+.ibytedtos.com"
+  - "+.ipstatp.com"
   - "+.byteoversea.com"
+  - "+.tik-tokapi.com"
+  - "+.muscdn.com"
+  - "+.musical.ly"

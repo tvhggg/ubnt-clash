@@ -2,35 +2,69 @@
 
 Clash config for Ubnt EdgeRouters
 
-## Install 
+Only supports configuration from URL.
+
+## Quick Start 
 
 Download deb package from https://github.com/sskaje/ubnt-clash/releases
 
 ```
+# Download deb package, copy URL from above
+curl -OL https://github.com/sskaje/ubnt-clash/releases/download/x.y.z/ubnt-clash_x.y.z_all.deb
 dpkg -i  ubnt-clash_x.y.z_all.deb
-```
 
-
-## Configuration
-
-### Create Interface
-
-```
+# Set config URL
 configure
 set interfaces clash utun config-url https://........
 commit
 save
 
+# Install binary, GeoIP db, UI
+clashctl.sh install
+# Start Clash
+clashctl.sh start
+
 ```
 
-ubnt-clash downloads `Dreamacro/clash` by default, you can use MetaCubeX/Clash.Meta by setting: 
+
+## Configuration
+
+### EdgeOS Config
+
+Tested under ubnt ER-X, ubnt ERLite, ubnt ER4 with latest firmware(Debian stretch based).
+
+For USG devices, please make sure your `config.gateway.json` is properly configured.
+
+
+#### Configure Syntax
+
+
+
+```
+configure
+
+# Your configuration commands here
+
+commit
+save
+```
+
+
+#### Create Interface
+
+File is downloaded with cURL, `file:///` is supported by cURL but not tested here.
+
+```
+set interfaces clash utun config-url https://........
+```
+
+ubnt-clash downloads `Dreamacro/clash` by default, you can use `MetaCubeX/Clash.Meta` by setting: 
 
 ```
 set interface clash utun executable meta
 ```
-and then `commit` `save`.
 
-### PBR 
+#### PBR 
 
 Router local IP 192.168.2.1, LAN interface eth1
 
@@ -48,13 +82,13 @@ set firewall modify MCLASH rule 101 source group address-group SRC_CLASH
 # apply pbr rules to eth1
 set interfaces ethernet eth1 firewall in modify MCLASH
 
-# Fake IP destination only if you need
+# Fake IP destination only if you need, NOT recommended
 set firewall group network-group DST_CLASH_FAKEIP network 198.18.0.0/16
 set firewall modify MCLASH rule 101 destination group network-group DST_CLASH_FAKEIP
 
 ```
 
-### DNS Hijack
+#### DNS Hijack
 Router local IP 192.168.2.1, LAN interface eth1
 
 
