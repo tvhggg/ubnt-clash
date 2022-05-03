@@ -303,19 +303,29 @@ function start()
     fi
   fi
 
+  # pre-up
+  [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/pre-up.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/pre-up.sh 
+
   check_copy_geoip_db
   
   generate_config 
 
   ( umask 0; sudo setsid sh -c "$CLASH_BINARY -d $CLASH_RUN_ROOT/$DEV > /tmp/clash_$DEV.log 2>&1 & echo \$! > $CLASH_RUN_ROOT/$DEV/clash.pid" )
+
+  # post-up
+  [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/post-up.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/post-up.sh 
 }
 
 
 function stop()
 {
   if [ -f $CLASH_RUN_ROOT/$DEV/clash.pid ]; then
+    # pre-down
+    [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/pre-down.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/pre-down.sh 
     sudo kill $(cat $CLASH_RUN_ROOT/$DEV/clash.pid)
     rm -f $CLASH_RUN_ROOT/$DEV/clash.pid 
+    # post-down
+    [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/post-down.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/post-down.sh 
   fi
 }
 

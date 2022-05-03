@@ -1,41 +1,45 @@
 # ubnt-clash
 
-English | [中文版](README.zh.md)
+[English](README.md) | 中文版
 
 Clash config for Ubnt EdgeRouters
 
-Only supports configuration from URL.
+只支持从订阅链接下载配置文件。
 
-## Quick Start 
+## 快速开始
 
-Download deb package from https://github.com/sskaje/ubnt-clash/releases
+从 https://github.com/sskaje/ubnt-clash/releases 下载 deb 包。
 
 ```
-# Download deb package, copy URL from above
+# 从上面链接里找到 deb 的下载链接，下载并安装
 curl -OL https://github.com/sskaje/ubnt-clash/releases/download/x.y.z/ubnt-clash_x.y.z_all.deb
 dpkg -i  ubnt-clash_x.y.z_all.deb
 
-# Set config URL
+# 配置订阅 URL
 configure
 set interfaces clash utun config-url https://........
 commit
 save
 
-# Install binary, GeoIP db, UI
+# 安装 Clash 二进制、GeoIP 数据库、UI
 clashctl.sh install
-# Start Clash
+# 启动 Clash
 clashctl.sh start
 
 ```
 
 
-## Configuration
+## 配置说明
 
-### EdgeOS Config
+### EdgeOS 配置
 
-Tested under ubnt ER-X, ubnt ERLite, ubnt ER4 with latest firmware(Debian stretch based).
+在下列设备上已验证均为最新的固件(Debian stretch).
 
-For USG devices, please make sure your [**config.gateway.json**](https://help.ui.com/hc/en-us/articles/215458888-UniFi-USG-Advanced-Configuration-Using-config-gateway-json) is properly configured on your controller.
+* ubnt ER-X
+* ubnt ERLite
+* ubnt ER4
+
+USG 设备需要自己配置 [**config.gateway.json**](https://help.ui.com/hc/en-us/articles/215458888-UniFi-USG-Advanced-Configuration-Using-config-gateway-json).
 
 ```json
 {
@@ -50,60 +54,60 @@ For USG devices, please make sure your [**config.gateway.json**](https://help.ui
 ```
 
 
-#### Configure Syntax
+#### EdgeOS 配置语法
 
 
 
 ```
 configure
 
-# Your configuration commands here
+# 在这里放配置命令
 
 commit
 save
 ```
 
 
-#### Create Interface
+#### 创建接口
 
-File is downloaded with cURL, `file:///` is supported by cURL but not tested here.
+配置文件是使用 cURL 下载的，所以理论上 `file:///` 也是可以用的，未验证.
 
 ```
 set interfaces clash utun config-url https://........
 ```
 
-ubnt-clash downloads `Dreamacro/clash` by default, you can use `MetaCubeX/Clash.Meta` by setting: 
+ubnt-clash 默认下载 `Dreamacro/clash`，也可以切换成 `MetaCubeX/Clash.Meta`: 
 
 ```
 set interface clash utun executable meta
 ```
 
-#### PBR 
+#### PBR 策略路由
 
-Router local IP 192.168.2.1, LAN interface eth1
+路由器 IP 192.168.2.1, LAN 接口 eth1
 
 
 ```
-# route table
+# 创建路由表
 set protocols static table 10 interface-route 0.0.0.0/0 next-hop-interface utun
 
-# pbr rules
+# pbr 规则
 set firewall group address-group SRC_CLASH address 192.168.2.10-192.168.2.250
 set firewall modify MCLASH rule 101 action modify
 set firewall modify MCLASH rule 101 modify table 10
 set firewall modify MCLASH rule 101 source group address-group SRC_CLASH
 
-# apply pbr rules to eth1
+# 在 eth1 上应用 pbr 规则
 set interfaces ethernet eth1 firewall in modify MCLASH
 
-# Fake IP destination only if you need, NOT recommended
+# 如果只想把 Fake IP 的目的地址转入utun，可以按这个配置，实际使用中不推荐，可以参考这个配置自己的 pbr 规则
 set firewall group network-group DST_CLASH_FAKEIP network 198.18.0.0/16
 set firewall modify MCLASH rule 101 destination group network-group DST_CLASH_FAKEIP
 
 ```
 
-#### DNS Hijack
-Router local IP 192.168.2.1, LAN interface eth1
+#### DNS 劫持
+路由器 IP 192.168.2.1, LAN 接口 eth1
 
 
 ```
@@ -118,32 +122,31 @@ set service nat rule 4050 type destination
 
 ```
 
-## Config Files
+## 配置文件结构
 
-Files are stored under **/config/clash**
+配置文件都存放在 **/config/clash**
 
-* **/config/clash/templates**: template config files
-* **/config/clash/templates/rulesets**: example config files
-* **/config/clash/utun**: config files for utun
+* **/config/clash/templates**: 模板配置
+* **/config/clash/templates/rulesets**: 模板配置的子配置文件样例
+* **/config/clash/utun**: utun的配置
 
-YAML files under *templates* will be copied to *utun* unless there is a same file under *utun*, files under *templates/rulesets* will NOT be copied.
+*templates* 会被复制到 *utun* 除非 *utun* 已经有了同名文件。*templates/rulesets* 不会被复制.
 
-### YAML File Loading Order 
+### YAML 文件加载顺序
 
 1. utun/*.yaml
 2. utun/rulesets/*.yaml
-3. File downloaded from server 
-4. utun/*.yaml.overwrite to overwrite settings, don't try to overwrite an array.
+3. 下载的配置文件
+4. utun/*.yaml.overwrite 用于覆盖已有设置，不支持覆盖数组配置.
 
-This loading order is designed because appending element to array is easier in YQ. 
+当前版本的 YQ 不支持 prepend 元素到数组里，所以只能按这个顺序来倒入配置。
 
-#### Custom Entry 
+#### 自定义配置项
 
-Some custom config entry is used by YQ scripts.
 
-##### Create A New Proxy Group
+##### 创建新的 proxy-group
 
-Example `templates/rulesets/tiktok.yaml`
+参考 `templates/rulesets/tiktok.yaml`
 
 ```
 proxy-groups:
@@ -161,9 +164,9 @@ A new **proxy-group** named "*TIKTOK*" will be created before all `proxy-groups`
 yq '[.proxies[] | select( .name | test("日本|韩国") ) | .name]' download.yaml
 ```
 
-#### 3rd Party Rule Providers
+#### 第三方 Rule Providers
 
-Examples `templates/rulesets/adblock.yaml`
+样例 `templates/rulesets/adblock.yaml`
 
 ```
 rule-providers:
@@ -183,19 +186,19 @@ A new rule provider will be added to clash config and a new `rule` will be inser
 
 `p.rst.im` is recommended in `url`.
 
-### Other Files
+### 其他文件
 
-GeoIP database file willl be downloaded to */config/clash* and symlink to */run/clash/utun/*.
+GeoIP 数据库文件会被下载到 */config/clash* 并被 symlink 到 */run/clash/utun/*.
 
-Dashboard files will be downloaded to */config/clash/dashboard*
+Dashboard UI 文件会被下载到 */config/clash/dashboard*
 
 
 
-## Commands 
+## 命令 
 
-### Install 
+### 安装 
 
-Install Clash Premium Binary, YQ, GeoIP Database.
+安装 Clash Premium 二进制文件, YQ, GeoIP 数据库.
 
 Proxy provided by p.rst.im
 
@@ -206,9 +209,9 @@ clashctl.sh install
 USE_PROXY=1 clashctl.sh install
 ```
 
-### Update  
+### 更新  
 
-#### Update Clash Binary
+#### 更新 Clash 二进制
 
 ```
 clashctl.sh update
@@ -217,7 +220,7 @@ clashctl.sh update
 USE_PROXY=1 clashctl.sh update
 ```
 
-#### Update Clash DashBoard UI
+#### 更新 Clash DashBoard UI
 
 
 ```
@@ -227,7 +230,7 @@ clashctl.sh update_ui
 USE_PROXY=1 clashctl.sh update_ui
 ```
 
-#### Update GeoIP Database
+#### 更新 GeoIP 数据库
 
 
 ```
@@ -247,12 +250,12 @@ clashctl.sh update_yq
 USE_PROXY=1 clashctl.sh update_yq
 ```
 
-### Show Clash Binary Version 
+### 查看 Clash 版本
 ```
 clashctl.sh show_version
 ```
 
-### Start/Stop/Restart Client 
+### 启动/停止/重启 Clash
 
 ```
 clashctl.sh start
@@ -260,23 +263,23 @@ clashctl.sh stop
 clashctl.sh restart
 ```
 
-### Update Config And Restart
+### 更新订阅配置并重启
 ```
 clashctl.sh rehash
 ```
 
 
-### More
+### 更多命令
 
 ```
 clashctl.sh help
 ```
 
 
-## Cron Update Config
+## 定时更新
 
 
-### Via system/task-scheduler
+### 使用 system/task-scheduler
 
 ```
 set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
@@ -284,18 +287,18 @@ set system task-scheduler task update-clash-config executable path "/config/scri
 
 ```
 
-## Up/Down Scripts
+## Up/Down 脚本
 
-Put `pre-up.sh`, `post-up.sh`, `pre-down.sh`, `post-down.sh` under /config/clash/utun/scripts/ and make them executable.
+把 `pre-up.sh`, `post-up.sh`, `pre-down.sh`, `post-down.sh` 放在 /config/clash/utun/scripts/ 并加上可执行的权限.
 
 
-## Misc
+## 杂项
 
-### OpenClash Enhanced Mode
+### OpenClash 增强模式
 
-Add `allow-lan: true` to `misc.yaml.overwrite`
+添加 `allow-lan: true` 到 `misc.yaml.overwrite`
 
-Run command
+执行命令
 
 ```
 # redirect all TCP from SRC_CLASH to 7892
@@ -309,13 +312,13 @@ iptables -t nat -A PREROUTING -i wg1 -p tcp -m set --match-set SRC_CLASH src -m 
 ```
 
 
-No 'best practice' yet, you can try with up/down scripts.
+没有符合 EdgeOS 的最佳实践，推荐使用 Up/Down 脚本.
 
-## Test 
+## 测试 
 
-### Clash utun
+### 验证 Clash utun
 
-Run on your Router to verify if clash tun is up and working.
+在路由器上执行下列命令，来验证 clash tun 是否正常工作
 
 ```
 curl https://rst.im/ip --interface utun -v

@@ -50,6 +50,8 @@ dns:
   - "*.time.edu.cn"
   - "*.ntp.org.cn"
   - "+.pool.ntp.org"
+  - "+.sandai.net"
+  - "+.xunlei.com"
   - time1.cloud.tencent.com
   - music.163.com
   - "*.music.163.com"
