@@ -275,17 +275,36 @@ clashctl.sh rehash
 clashctl.sh help
 ```
 
+### 关于代理
 
-## 定时更新
+代理由 https://p.rst.im/ 提供
+
+你可以:
+```
+USE_PROXY=1 clashctl.sh ...
+```
+
+或者
+```
+touch /config/clash/USE_PROXY
+clashctl ...
+```
+
+## 计划任务
 
 
 ### 使用 system/task-scheduler
 
 ```
+# 定时更新
 set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
 set system task-scheduler task update-clash-config executable path "/config/scripts/clash-cron"
-
+# 监控
+set system task-scheduler task monitor-clash crontab-spec "*/1 * * * *"
+set system task-scheduler task monitor-clash executable path "/config/scripts/clash-monitor"
 ```
+
+
 
 ## Up/Down 脚本
 

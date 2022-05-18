@@ -1,3 +1,11 @@
+ubnt-clash (0.3.2) sid; urgency=medium
+
+  * More rules
+  * Monitor 
+  * Geosite rules for Meta
+
+ -- sskaje <sskaje@gmail.com>  Tue, 18 May 2022 15:45:00 +0000
+
 ubnt-clash (0.3.1) sid; urgency=medium
 
   * Up/Down scripts

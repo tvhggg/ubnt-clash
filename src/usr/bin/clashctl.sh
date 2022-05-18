@@ -22,6 +22,10 @@ CLASH_CONFIG_ROOT=/config/clash
 
 CLASH_DOWNLOAD_NAME=clash.config
 
+if [ -f $CLASH_CONFIG_ROOT/USE_PROXY ]; then 
+  USE_PROXY=1
+fi 
+
 # Clash premium only support 1 single tun interface named utun.
 DEV=utun
 
@@ -117,11 +121,12 @@ function http_download()
 function github_download()
 {
   REPO=$1
-  TAG=${2:-latest}
+  TAG=$2
+  NAME=$3
 
   API_URL=https://api.github.com/repos/$REPO/releases/$TAG
 
-  ASSET_URL=$(curl -q -s $API_URL | jq -r '.assets[0].browser_download_url')
+  ASSET_URL=$(curl -q -s $API_URL | jq -r '.assets[0] | select(.name == "'$NAME'") | .browser_download_url')
 
   http_download $ASSET_URL
 }
@@ -194,16 +199,27 @@ function download_config()
 function download_geoip_db()
 {
   DB_PATH=$CLASH_CONFIG_ROOT/Country.mmdb
-
-  mkdir -p $(dirname $DB_PATH)
   
-  echo "Downloading DB..." 1>&2
-  TMPFILE=$(github_download Dreamacro/maxmind-geoip latest)
+  echo "Downloading Country.mmdb ..." 1>&2
+  TMPFILE=$(github_download Dreamacro/maxmind-geoip latest Country.mmdb)
   
   if [ $? -eq 0 ]; then 
     sudo mv "$TMPFILE" $DB_PATH 
   fi
   rm -f "$TMPFILE"
+
+  if [ "$CLASH_EXECUTABLE" == "meta" ]; then
+    DB_PATH=$CLASH_CONFIG_ROOT/geosite.dat
+  
+    echo "Downloading Geosite.dat ..." 1>&2
+    TMPFILE=$(github_download Loyalsoldier/v2ray-rules-dat latest geosite.dat)
+    # todo: verify hash 
+
+    if [ $? -eq 0 ]; then 
+      sudo mv "$TMPFILE" $DB_PATH 
+    fi
+    rm -f "$TMPFILE"
+  fi
 }
 
 function copy_geoip_db()
@@ -218,11 +234,24 @@ function copy_geoip_db()
   else 
     echo "GeoIP DB Not found, clash will download it, if it's too slow, try USE_PROXY=1 $0 update_db " 1>&2
   fi
+
+  if [ "$CLASH_EXECUTABLE" == "meta" ]; then
+    echo "Installing GeoSite DB..." 1>&2
+
+    DB_PATH=$CLASH_CONFIG_ROOT/geosite.dat
+    
+    if [ -f $DB_PATH ]; then 
+      # DO NOT COPY
+      ln -s $DB_PATH $CLASH_RUN_ROOT/$DEV/geosite.dat
+    else 
+      echo "GeoSite DB Not found, clash will download it, if it's too slow, try USE_PROXY=1 $0 update_db " 1>&2
+    fi
+  fi 
 }
 
 function check_copy_geoip_db()
 {
-  if [ ! -f $CLASH_RUN_ROOT/$DEV/Country.mmdb ]; then
+  if [ ! -f $CLASH_RUN_ROOT/$DEV/Country.mmdb ] || [ "$CLASH_EXECUTABLE" == "meta" ] && [ ! -f $CLASH_RUN_ROOT/$DEV/geosite.dat ] ; then
     copy_geoip_db
   fi
 }
@@ -278,12 +307,21 @@ function generate_config()
   rm -f $CLASH_RUN_ROOT/$DEV/config.yaml
 
   # manually setting order to ensure local rules correctly inserted before downloaded rules
-  yq eval-all --from-file /usr/share/ubnt-clash/one.yq \
-    $CLASH_CONFIG_ROOT/$DEV/*.yaml \
-    $CLASH_CONFIG_ROOT/$DEV/rulesets/*.yaml \
-    $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME \
-    $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite \
-    > $CLASH_RUN_ROOT/$DEV/config.yaml
+  config_files=($CLASH_CONFIG_ROOT/$DEV/*.yaml $CLASH_CONFIG_ROOT/$DEV/rulesets/*.yaml $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite)
+
+  if [ "$CLASH_EXECUTABLE" == "meta" ]; then
+    config_files+=($CLASH_CONFIG_ROOT/$DEV/meta.d/*.yaml) 
+  fi 
+  yq eval-all --from-file /usr/share/ubnt-clash/one.yq ${config_files[@]} > $CLASH_RUN_ROOT/$DEV/config.yaml
+
+
+  # manually setting order to ensure local rules correctly inserted before downloaded rules
+#  yq eval-all --from-file /usr/share/ubnt-clash/one.yq \
+#    $CLASH_CONFIG_ROOT/$DEV/*.yaml \
+#    $CLASH_CONFIG_ROOT/$DEV/rulesets/*.yaml \
+#    $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME \
+#    $CLASH_CONFIG_ROOT/$DEV/*.yaml.overwrite \
+#    > $CLASH_RUN_ROOT/$DEV/config.yaml
 
 }
 
@@ -351,6 +389,16 @@ function check_status()
   fi
 }
 
+function monitor()
+{
+  if [ -f "$CLASH_RUN_ROOT/$DEV/clash.pid" ] && read pid < "$CLASH_RUN_ROOT/$DEV/clash.pid" && ps -p "$pid" > /dev/null 2>&1; then
+    echo "Clash $DEV is running." 1>&2
+  else
+    mv /tmp/clash_$DEV.log /tmp/clash_$DEV_$(date +"%s").log
+    echo "Starting Clash $DEV ." 1>&2
+    start
+  fi
+}
 
 function run_cron()
 {
@@ -370,8 +418,6 @@ function run_cron()
     fi 
   done
 }
-
-
 
 
 case $1 in
@@ -406,21 +452,19 @@ case $1 in
     install_ui
     ;;
 
-  update_db)
+  update_db | install_db)
     download_geoip_db
     ;;  
-  update_yq)
+  update_yq | install_yq)
     install_yq
     ;;  
-  update_ui)
+  update_ui | install_ui)
     install_ui
     ;;  
 
-  update | update_clash)
+  update | update_clash | install_clash)
     install_clash
     ;;
-
-
 
   status)
     check_status
@@ -431,7 +475,7 @@ case $1 in
     check_version
     ;;
 
-  show_version | clash_version)
+  show_version | clash_version | version)
     clash_version
     ;;
   
@@ -456,9 +500,12 @@ case $1 in
     start
     ;;
 
-
   cron)
     run_cron 
+    ;;
+
+  monitor)
+    monitor 
     ;;
 
   help)

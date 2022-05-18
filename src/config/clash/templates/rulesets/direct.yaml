@@ -1,0 +1,10 @@
+rule-providers:
+  direct:
+    type: http
+    behavior: domain
+    url: "https://p.rst.im/q/raw.githubusercontent.com/Loyalsoldier/clash-rules/release/direct.txt"
+    path: ./direct.yaml
+    interval: 86400
+
+rules:
+  - RULE-SET,direct,DIRECT

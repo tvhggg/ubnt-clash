@@ -1,0 +1,7 @@
+dns:
+  fake-ip-filter:
+  - "mirrors.tencent.com"
+  - "mirrors.163.com"
+  - "mirrors.huaweicloud.com"
+  - "repo.huaweicloud.com"
+

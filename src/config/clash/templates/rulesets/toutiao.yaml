@@ -1,0 +1,21 @@
+dns: 
+  fake-ip-filter:
+  - '+.zijieapi.com'
+  - '+.bytedance.com'
+  - '+.toutiao.com'
+  - '+.toutiaoimg.com'
+  - '+.toutiaocloud.com'
+  - '+.toutiaocloud.net'
+  - '+.amemv.com'
+  - '+.snssdk.com'
+  - '+.douyinpic.com'
+  - '+.douyinvod.com'
+  - '+.douyincdn.com'
+  - '+.douyinstatic.com'
+  - '+.bytegoofy.com'
+  - '+.bytescm.com'
+  - '+.bytetos.com'
+  - '+.bytednsdoc.com'
+  - '+.bdurl.net'
+  - '+.ecombdapi.com'
+

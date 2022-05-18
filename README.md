@@ -272,15 +272,36 @@ clashctl.sh rehash
 clashctl.sh help
 ```
 
+### About Proxy
 
-## Cron Update Config
+Proxy is provided by https://p.rst.im/
+
+You can either:
+```
+USE_PROXY=1 clashctl.sh ...
+```
+or
+
+```
+touch /config/clash/USE_PROXY
+clashctl ...
+```
+
+
+
+
+## Cron 
 
 
 ### Via system/task-scheduler
 
 ```
+# update config
 set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
 set system task-scheduler task update-clash-config executable path "/config/scripts/clash-cron"
+# monitor 
+set system task-scheduler task monitor-clash crontab-spec "*/1 * * * *"
+set system task-scheduler task monitor-clash executable path "/config/scripts/clash-monitor"
 
 ```
 
