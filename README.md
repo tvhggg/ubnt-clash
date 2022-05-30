@@ -78,9 +78,9 @@ ubnt-clash downloads `Dreamacro/clash` by default, you can use `MetaCubeX/Clash.
 set interface clash utun executable meta
 ```
 
-#### Update Clash Configuration
+#### Auto Update Clash Configuration
 
-Update configuration from subscription URL.
+Update configuration from subscription URL every 4 hours.
 ```
 set interface clash utun update-time 14400
 ```

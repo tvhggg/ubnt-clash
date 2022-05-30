@@ -82,6 +82,14 @@ ubnt-clash 默认下载 `Dreamacro/clash`，也可以切换成 `MetaCubeX/Clash.
 set interface clash utun executable meta
 ```
 
+#### 订阅自动更新
+
+每 4 小时自动更新配置文件。
+```
+set interface clash utun update-time 14400
+```
+
+
 #### PBR 策略路由
 
 路由器 IP 192.168.2.1, LAN 接口 eth1
@@ -296,12 +304,9 @@ clashctl ...
 ### 使用 system/task-scheduler
 
 ```
-# 定时更新
-set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
-set system task-scheduler task update-clash-config executable path "/config/scripts/clash-cron"
-# 监控
-set system task-scheduler task monitor-clash crontab-spec "*/1 * * * *"
-set system task-scheduler task monitor-clash executable path "/config/scripts/clash-monitor"
+# 计划任务：定时更新, 监控
+set system task-scheduler task clash-cron crontab-spec "*/1 * * * *"
+set system task-scheduler task clash-cron executable path "/config/scripts/clash-cron"
 ```
 
 
