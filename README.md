@@ -78,6 +78,13 @@ ubnt-clash downloads `Dreamacro/clash` by default, you can use `MetaCubeX/Clash.
 set interface clash utun executable meta
 ```
 
+#### Update Clash Configuration
+
+Update configuration from subscription URL.
+```
+set interface clash utun update-time 14400
+```
+
 #### PBR 
 
 Router local IP 192.168.2.1, LAN interface eth1
@@ -296,12 +303,9 @@ clashctl ...
 ### Via system/task-scheduler
 
 ```
-# update config
-set system task-scheduler task update-clash-config crontab-spec "20 */4 * * *"
-set system task-scheduler task update-clash-config executable path "/config/scripts/clash-cron"
-# monitor 
-set system task-scheduler task monitor-clash crontab-spec "*/1 * * * *"
-set system task-scheduler task monitor-clash executable path "/config/scripts/clash-monitor"
+# task scheduler, monitor, cron, etc.
+set system task-scheduler task clash-cron crontab-spec "*/1 * * * *"
+set system task-scheduler task clash-cron executable path "/config/scripts/clash-cron"
 
 ```
 

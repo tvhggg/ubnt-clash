@@ -176,16 +176,20 @@ function clash_version()
   test -x $CLASH_BINARY && $CLASH_BINARY -v
 }
 
+function check_clash_binary()
+{
+  if [ ! -x $CLASH_BINARY ]; then
+    echo "You need to install clash binary first."
+    echo "Run: `clashctl.sh install`"
+    exit 1
+  fi
+}
 
 function download_config()
 {
   echo "Download Config" 1>&2
-
-  if [ ! -x $CLASH_BINARY ]; then
-    echo "You need to download clash binary first"
-    exit 1
-  fi
-
+  check_clash_binary
+  
   CONFIG_URL=$(cli-shell-api returnEffectiveValue interfaces clash $DEV config-url)
 
   TMPFILE=$CLASH_CONFIG_ROOT/$DEV/download.yaml
@@ -293,7 +297,7 @@ function install_ui()
 function generate_config()
 {
   if [ ! -f $CLASH_CONFIG_ROOT/$DEV/$CLASH_DOWNLOAD_NAME ]; then
-    download_config 
+    download_config
   fi 
 
   # /config/clash/templates => /config/clash/utun
@@ -332,6 +336,8 @@ function show_config()
 
 function start()
 {
+  check_clash_binary
+
   if [ -f $CLASH_RUN_ROOT/$DEV/clash.pid ]; then 
     if read pid < "$CLASH_RUN_ROOT/$DEV/clash.pid" && ps -p "$pid" > /dev/null 2>&1; then
       echo "Clash $DEV is running." 1>&2
@@ -340,6 +346,14 @@ function start()
       rm -f $CLASH_RUN_ROOT/$DEV/clash.pid 
     fi
   fi
+
+  disabled=$(cli-shell-api existsActive interfaces clash $DEV disable)
+
+  if [ $disabled ]; then
+    echo "$DEV disabled" 1>&2
+    exit;
+  fi
+
 
   # pre-up
   [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/pre-up.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/pre-up.sh 
@@ -389,33 +403,50 @@ function check_status()
   fi
 }
 
-function monitor()
-{
-  if [ -f "$CLASH_RUN_ROOT/$DEV/clash.pid" ] && read pid < "$CLASH_RUN_ROOT/$DEV/clash.pid" && ps -p "$pid" > /dev/null 2>&1; then
-    echo "Clash $DEV is running." 1>&2
-  else
-    mv /tmp/clash_$DEV.log /tmp/clash_$DEV_$(date +"%s").log
-    echo "Starting Clash $DEV ." 1>&2
-    start
-  fi
-}
 
 function run_cron()
 {
   # read device config
-  for i in $(cli-shell-api listActiveNodes interfaces clash); do 
-    eval "device=($i)"
-
+  for device in $(cli-shell-api listActiveNodes interfaces clash); do 
+    eval "device=($device)"
     echo "Processing Device $device" 1>&2
 
-    config_mtime=$(stat -c %Y $CLASH_RUN_ROOT/$DEV/config.yaml)
+    disabled=$(cli-shell-api existsActive interfaces clash $device disable)
+
+    if [ $disabled ]; then
+      echo "$DEV disabled" 1>&2
+      continue;
+    fi
+
+    # default to 86400
+    update_time=$(cli-shell-api returnEffectiveValue interfaces clash $device update-time)
+
+    config_mtime=$(stat -c %Y $CLASH_RUN_ROOT/$device/config.yaml)
     now_time=$(date +'%s')
     diff_in_seconds=$(expr $now_time - $config_mtime)
-    if [ $diff_in_seconds -gt 86400 ];then 
-      rehash $i
-      stop $i
-      start $i
+    REHASHED=""
+    if [ $diff_in_seconds -gt $update_time ];then
+      download_config $device
+      REHASHED="1"
+    else
+      echo "No need to update config" 1>&2
+    fi
+
+    if [ -f "$CLASH_RUN_ROOT/$DEV/clash.pid" ] && read pid < "$CLASH_RUN_ROOT/$DEV/clash.pid" && ps -p "$pid" > /dev/null 2>&1; then
+      echo "Clash $DEV is running." 1>&2
+
+      if [ "$REHASHED" == "1" ]; then
+        stop $device
+        start $device
+      fi
+    else
+      mv /tmp/clash_$DEV.log /tmp/clash_$DEV_$(date +"%s").log
+      echo "Starting Clash $DEV ." 1>&2
+      start
     fi 
+
+
+
   done
 }
 
@@ -500,12 +531,8 @@ case $1 in
     start
     ;;
 
-  cron)
+  cron | monitor)
     run_cron 
-    ;;
-
-  monitor)
-    monitor 
     ;;
 
   help)
