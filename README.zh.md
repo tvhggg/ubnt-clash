@@ -318,6 +318,79 @@ set system task-scheduler task clash-cron executable path "/config/scripts/clash
 
 ## 杂项
 
+### 中国 IP 直连
+
+数据来源 [17mon/china_ip_list](https://github.com/17mon/china_ip_list)
+
+为什么不直接导入到 configure 模式里？**因为启动太慢了**
+
+实现方案: **PBR**
+
+好处：管理简单
+
+```
+# 创建 ipset 并加入到 PBR 规则里，放在尽量靠前的位置，至少要比执行修改的 rule id 要小
+configure 
+set firewall group network-group CHINA_IP
+set firewall modify MCLASH rule 100 action accept
+set firewall modify MCLASH rule 100 destination group network-group CHINA_IP
+commit
+save
+
+# 保存列表到本地
+curl -q -s -o /config/china_ip_list.txt https://p.rst.im/q/raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt
+
+# 创建启动脚本，也可以自己调用
+cat > /config/scripts/post-config.d/import-china-ip-list <<'EOF'
+#!/bin/bash 
+
+for i in $(cat /config/china_ip_list.txt);
+  do ipset add -! CHINA_IP $i;
+done
+
+EOF
+
+chmod +x /config/scripts/post-config.d/import-china-ip-list 
+
+# 上边脚本可以自己搞个crontab
+
+```
+
+实现方案：**路由表**
+
+好处：理论上性能比 PBR 会好一点点
+坏处：管理麻烦
+
+** 未测试验证，仅仅是理论上的方案 **
+
+
+```
+
+# 保存列表到本地
+curl -q -s -o /config/china_ip_list.txt https://p.rst.im/q/raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt
+
+# 创建启动脚本，也可以自己调用
+cat > /config/scripts/post-config.d/import-china-ip-list <<'EOF'
+#!/bin/bash 
+
+for i in $(cat /config/china_ip_list.txt); do
+  # 假定本地默认设备 eth1 上行 ip 192.168.2.1 PBR 规则使用的路由表 10
+  ip route add $i dev eth1 via 192.168.2.1 table 10;
+  # 假定本地默认设备 pppoe0 PBR 规则使用的路由表 10
+  #ip route add $i dev pppoe0 table 10;
+done
+
+EOF
+
+chmod +x /config/scripts/post-config.d/import-china-ip-list 
+
+# 上边脚本可以自己搞个crontab
+
+```
+
+
+
+
 ### OpenClash 增强模式
 
 添加 `allow-lan: true` 到 `misc.yaml.overwrite`
@@ -337,6 +410,7 @@ iptables -t nat -A PREROUTING -i wg1 -p tcp -m set --match-set SRC_CLASH src -m 
 
 
 没有符合 EdgeOS 的最佳实践，推荐使用 Up/Down 脚本.
+
 
 ## 测试 
 
