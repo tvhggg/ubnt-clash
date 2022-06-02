@@ -18,4 +18,5 @@ dns:
   - '+.bytednsdoc.com'
   - '+.bdurl.net'
   - '+.ecombdapi.com'
-
+  - '+.pglstatp-toutiao.com'
+  - '+.pangolin-sdk-toutiao.com'

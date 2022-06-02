@@ -1,0 +1,8 @@
+dns:
+  fake-ip-filter:
+  - "+.ecitic.com"
+  - "+.citicbank.com"
+  - "+.cmbchina.com"
+  - "+.cmbimg.com"
+  - "+.95516.com"
+  

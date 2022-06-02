@@ -1,0 +1,8 @@
+dns:
+  fake-ip-filter:
+  - "+.bilibili.com"
+  - "+.biliapi.net"
+  - "+.biliapi.com"
+  - "+.biligame.com"
+  - "+.bilivideo.com"
+

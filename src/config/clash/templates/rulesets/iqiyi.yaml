@@ -1,0 +1,6 @@
+dns:
+  fake-ip-filter:
+  - "+.qy.net"
+  - "+.iqiyi.com"
+  - "+.iqiyipic.com"
+  - "+.gitv.tv"

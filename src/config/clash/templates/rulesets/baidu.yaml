@@ -1,0 +1,7 @@
+dns:
+  fake-ip-filter:
+  - "+.baidu.com"
+  - "+.shifen.com"
+  - "+.bdstatic.com"
+  - "+.bdimg.com"
+  

@@ -1,0 +1,21 @@
+dns:
+  fake-ip-filter:
+  - "+.youku.com"
+  - "+.ykimg.com"
+  - "+.autonavi.com"
+  - "+.amap.com"
+  - "+.taobao.com"
+  - "+.1688.com"
+  - "+.alibaba.com"
+  - "+.alibabausercontent.com"
+  - "+.alibabadns.com"
+  - "+.alipay.com"
+  - "+.alipayobjects.com"
+  - "+.alicdn.com"
+  - "+.aliyun.com"
+  - "+.aliyuncs.com"
+  - "+.aliapp.org"
+  - "+.tmall.com"
+  - "+.ele.me"
+  - "+.dingtalk.com"
+  

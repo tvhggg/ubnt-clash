@@ -1,0 +1,6 @@
+type: u32
+help: Connection check interval, used in cron
+default: 300
+syntax:expression: ($VAR(@) >= 30 && $VAR(@) <= 86400) ; "must between 30-86400 seconds"
+val_help: u32:30-86400; Connection check interval in seconds (default 86400)
+

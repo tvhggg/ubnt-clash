@@ -81,9 +81,20 @@ set interface clash utun executable meta
 #### Auto Update Clash Configuration
 
 Update configuration from subscription URL every 4 hours.
+
 ```
-set interface clash utun update-time 14400
+set interface clash utun update-interval 14400
 ```
+
+#### Auto Check Connection
+
+Check connection every 5 minutes.
+
+```
+set interface clash utun check-interval 300
+```
+If you want to check your connection every minute, please set the `check-interval` to 30 seconds.
+
 
 #### PBR 
 

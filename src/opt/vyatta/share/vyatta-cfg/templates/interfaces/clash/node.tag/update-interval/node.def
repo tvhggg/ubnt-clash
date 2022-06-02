@@ -1,0 +1,6 @@
+type: u32
+help: Config update interval, used in cron
+default: 86400
+syntax:expression: ($VAR(@) >= 120 && $VAR(@) <= 86400) ; "must between 120-86400 seconds"
+val_help: u32:120-86400; Config update interval in seconds (default 86400)
+

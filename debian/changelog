@@ -1,3 +1,11 @@
+ubnt-clash (0.3.4) sid; urgency=medium
+
+  * Reload config using REST API
+  * Auto change server if testing failed
+  * Rename update-time to update-interval
+
+ -- sskaje <sskaje@gmail.com>  Tue, 30 May 2022 11:52:00 +0000
+
 ubnt-clash (0.3.3) sid; urgency=medium
 
   * Monitor to cron

@@ -1,0 +1,12 @@
+dns:
+  fake-ip-filter:
+  - "+.qq.com"
+  - "+.tencent.com"
+  - "+.tencentmusic.com"
+  - "+.gtimg.com"
+  - "+.gdtimg.com"
+  - "+.smtcdns.com"
+  - "+.qcloud.com"
+  - "+.myqcloud.com"
+  - "+.tencent-cloud.com"
+  

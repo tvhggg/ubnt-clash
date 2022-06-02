@@ -1,0 +1,10 @@
+dns:
+  fake-ip-filter:
+  - "+.miguvideo.com"
+  - "+.cn.wswebcdn.com"
+  - "+.miguvideo.com.wsglb0.com"
+  - "+.miguvideo.com.wsdvs.com"
+  - "+.miguvideo.com.w.kunluncan.com"
+  - "+.cmread.com"
+  - "+.chinamobile.com"
+  

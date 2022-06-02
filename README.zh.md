@@ -86,8 +86,16 @@ set interface clash utun executable meta
 
 每 4 小时自动更新配置文件。
 ```
-set interface clash utun update-time 14400
+set interface clash utun update-interval 14400
 ```
+
+#### 连接检查
+
+每 5 分钟检查当前连接。
+```
+set interface clash utun check-interval 300
+```
+如果你想每分钟检查，请设置 `check-interval` 成 30。
 
 
 #### PBR 策略路由

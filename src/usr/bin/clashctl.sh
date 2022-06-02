@@ -366,6 +366,8 @@ function start()
 
   # post-up
   [ -x $CLASH_CONFIG_ROOT/$DEV/scripts/post-up.sh ] && . $CLASH_CONFIG_ROOT/$DEV/scripts/post-up.sh 
+
+  touch $CLASH_RUN_ROOT/$DEV/checked
 }
 
 
@@ -403,7 +405,6 @@ function check_status()
   fi
 }
 
-
 function run_cron()
 {
   # read device config
@@ -418,14 +419,14 @@ function run_cron()
       continue;
     fi
 
-    # default to 86400
-    update_time=$(cli-shell-api returnEffectiveValue interfaces clash $device update-time)
-
-    config_mtime=$(stat -c %Y $CLASH_RUN_ROOT/$device/config.yaml)
     now_time=$(date +'%s')
+
+    # default to 86400
+    update_interval=$(cli-shell-api returnEffectiveValue interfaces clash $device update-interval)
+    config_mtime=$(stat -c %Y $CLASH_RUN_ROOT/$device/config.yaml)
     diff_in_seconds=$(expr $now_time - $config_mtime)
     REHASHED=""
-    if [ $diff_in_seconds -gt $update_time ];then
+    if [ $diff_in_seconds -gt $update_interval ];then
       download_config $device
       REHASHED="1"
     else
@@ -436,10 +437,26 @@ function run_cron()
       echo "Clash $DEV is running." 1>&2
 
       if [ "$REHASHED" == "1" ]; then
-        stop $device
-        start $device
+        # stop $device
+        # start $device
+        echo "Reloading $DEV via REST API"
+        python /usr/bin/clashmonitor.py reload $device
+      fi
+
+
+      check_interval=$(cli-shell-api returnEffectiveValue interfaces clash $device check-interval)
+      checkfile_mtime=$(stat -c %Y $CLASH_RUN_ROOT/$device/checked)
+      diff_in_seconds=$(expr $now_time - $checkfile_mtime)
+      REHASHED=""
+      if [ $diff_in_seconds -gt $check_interval ];then
+        # run monitor
+        date >> /tmp/clash_monitor.log
+        python /usr/bin/clashmonitor.py monitor $device >> /tmp/clash_monitor.log
+        touch $CLASH_RUN_ROOT/$device/checked
       fi
     else
+      date >> /tmp/clash_monitor.log
+      echo "Monitor starting Clash $DEV" >> /tmp/clash_monitor.log
       mv /tmp/clash_$DEV.log /tmp/clash_$DEV_$(date +"%s").log
       echo "Starting Clash $DEV ." 1>&2
       start
