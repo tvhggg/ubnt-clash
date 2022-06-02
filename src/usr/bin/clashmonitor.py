@@ -14,12 +14,13 @@ import subprocess
 import hashlib
 import random
 
+
 class ClashMonitor:
 
     def __init__(self, controller, secret):
         self.controller = controller
         self.secret = secret
-        self.conn = self.rest_connection()
+        self.conn = httplib.HTTPConnection(self.controller)()
         self.conn.set_debuglevel(0)
         
         self.headers = {
@@ -28,9 +29,6 @@ class ClashMonitor:
 
     def __del__(self):
         self.conn.close()
-
-    def rest_connection(self):
-        return httplib.HTTPConnection(self.controller)
 
     def rest_get(self, url):
         self.conn.request('GET', url, headers=self.headers)
@@ -119,23 +117,25 @@ class ClashMonitor:
                     else:
                         tested.append(to_test)
 
+                        changed = False
                         if to_test != current:
                             self.update_proxy(i, to_test)
-                            current = to_test
-                            print(i.encode('utf-8') + " Try: " + to_test.encode('utf-8'))
+                            if current != to_test:
+                                current = to_test
+                            print(i.encode('utf-8') + " Try: " + to_test.encode('utf-8'), )
+                            changed = True
 
                         if self.test():
                             connected.append(to_test)
-                            if current != to_test:
-                                current = to_test
-                                print(i.encode('utf-8') + " Changed to " + to_test.encode('utf-8'))
+                            if changed:
+                                print(" ... Connected")
                             break
                         else:
                             # find next 
                             ptr += 1
                             to_test = proxies[i]['all'][ptr]
 
-
+                        print("")
 
 
 if __name__ == '__main__':

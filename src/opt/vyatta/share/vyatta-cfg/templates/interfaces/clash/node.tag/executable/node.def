@@ -1,4 +1,7 @@
 type: txt
-help: Clash executable 
+help: Clash executable
 syntax:expression: $VAR(@) in "clash", "meta";
                    "Must be \"clash\" or \"meta\""
+
+val_help: clash; Default option, "Dreamacro/clash"
+val_help: meta; "MetaCubeX/Clash.Meta"

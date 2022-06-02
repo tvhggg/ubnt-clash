@@ -3,6 +3,7 @@ ubnt-clash (0.3.4) sid; urgency=medium
   * Reload config using REST API
   * Auto change server if testing failed
   * Rename update-time to update-interval
+  * Up/Down example scripts 
 
  -- sskaje <sskaje@gmail.com>  Tue, 30 May 2022 11:52:00 +0000
 

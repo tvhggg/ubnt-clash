@@ -67,6 +67,22 @@ commit
 save
 ```
 
+```
+root@ER3# set interfaces clash utun 
+Possible completions:
+  check-interval
+  		Connection check interval, used in cron
+  config-url	URL containing the Clash config (e.g., https://xxxx)
+  description	Description for the interface
+  disable	Interface to be disabled
+  executable	Clash executable
+  outbound-interface
+  		Outbound interface, not used for now
+  update-interval
+  		Config update interval, used in cron
+      
+```
+
 
 #### 创建接口
 
